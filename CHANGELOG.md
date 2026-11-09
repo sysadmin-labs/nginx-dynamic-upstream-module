@@ -15,3 +15,8 @@ upstream findings are being addressed here.
   `--with-stream`.  Every stream path is now guarded by
   `NGX_STREAM_UPSTREAM_ZONE`, and `config` registers the stream module
   only when nginx has stream.  (upstream issue #11)
+
+- Build with a relative `--add-module` path.  `config` now resolves
+  `$ngx_addon_dir` to a full path, so the source and include paths no
+  longer depend on the directory configure was run from.  (upstream
+  issue #5)

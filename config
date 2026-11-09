@@ -1,5 +1,9 @@
 ngx_addon_name=ngx_http_dynamic_upstream_module
 
+# Resolve a relative --add-module path to a full one so the build does not
+# depend on the directory configure was run from (upstream #5).
+ngx_addon_dir=$(cd "$ngx_addon_dir" && pwd)
+
 dynamic_upstream_srcs="                                     \
     $ngx_addon_dir/src/ngx_http_dynamic_upstream_module.cpp \
     $ngx_addon_dir/src/ngx_dynamic_upstream_op.cpp          \
