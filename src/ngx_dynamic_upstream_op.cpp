@@ -351,8 +351,24 @@ add:
     if (op->op_param & NGX_DYNAMIC_UPSTEAM_OP_PARAM_DOWN)
         npeer->down = op->down;
 
-    npeer->next = peers->peer;
-    peers->peer = npeer;
+    {
+        /* Insert ordered by peer name (the resolved address) so that nodes
+         * which resolve the same set of addresses, in whatever order, build
+         * an identical peer list.  hash and ip_hash balancing pick a peer by
+         * its position, so an order that differs between nodes sends the same
+         * key to different upstreams.  (upstream #10) */
+        typename TypeSelect<S>::peer_type  **pp;
+
+        for (pp = &peers->peer;
+             *pp != NULL
+             && ngx_memn2cmp((*pp)->name.data, npeer->name.data,
+                             (*pp)->name.len, npeer->name.len) < 0;
+             pp = &(*pp)->next)
+        { /* void */ }
+
+        npeer->next = *pp;
+        *pp = npeer;
+    }
 
     peers->total_weight += npeer->weight;
     peers->single = (peers->number == 0);

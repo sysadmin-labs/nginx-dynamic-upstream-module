@@ -20,3 +20,10 @@ upstream findings are being addressed here.
   `$ngx_addon_dir` to a full path, so the source and include paths no
   longer depend on the directory configure was run from.  (upstream
   issue #5)
+
+- Deterministic peer order for hash balancing.  Dynamically added peers
+  were inserted at the list head in resolution order, so nodes that
+  resolved the same addresses at different times held differently ordered
+  lists; `hash` and `ip_hash` pick by position, so a key reached different
+  upstreams per node.  Peers are now inserted ordered by address.
+  (upstream issue #10)
