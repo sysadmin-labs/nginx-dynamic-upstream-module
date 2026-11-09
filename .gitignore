@@ -1,5 +1,4 @@
-servroot
-install
-download
-build
-tmp
+/build/
+/install/
+*.o
+*.so
