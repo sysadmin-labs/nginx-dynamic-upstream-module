@@ -34,3 +34,12 @@ upstream findings are being addressed here.
   by DHCP, so traffic kept reaching the wrong place.  Such peers are now
   removed, and an emptied upstream falls back to its `0.0.0.0:1 down`
   placeholder.  (upstream issue #9)
+
+### Documented
+
+- Starting when a server name cannot be resolved.  nginx resolves static
+  upstream names at startup and aborts if one fails; that is nginx's
+  behaviour, not this module's.  The README now describes the
+  `dynamic_state_file` + `dns_update` pattern, which seeds a `0.0.0.0:1
+  down` placeholder so nginx always starts and names are added at run
+  time.  (upstream issue #8)

@@ -7,9 +7,6 @@ This module also supports stream upstreams manipulation.
 
 Online reconfiguration upstream addresses from DNS by hostname without reloads.
 
-# Build status
-[![Build Status](https://travis-ci.org/ZigzagAK/ngx_dynamic_upstream.svg)](https://travis-ci.org/ZigzagAK/ngx_dynamic_upstream)
-
 # Requirements
 
 `ngx_dynamic_upstream` requires the `zone` directive in the `upstream` context.
@@ -144,6 +141,37 @@ http {
     }
 }
 ```
+
+## Starting when a name cannot be resolved
+
+nginx resolves every `server name;` in an `upstream` block once, while it
+reads the configuration, and refuses to start if a name does not resolve
+(`host not found in upstream`).  That is nginx's own behaviour, not this
+module's, and listing names statically ties the start of nginx to DNS.
+
+For an upstream whose members come and go — and so may all be absent when
+nginx starts — do not list the names statically.  Give the upstream a
+`dynamic_state_file`, which seeds it with a `server 0.0.0.0:1 down;`
+placeholder so it is always valid, together with a `dns_update`, and add
+the names at run time through the API:
+
+```nginx
+http {
+    upstream backends {
+        zone backends 1m;
+        dns_update 10s;
+        dynamic_state_file backends.peers;
+    }
+}
+```
+
+```bash
+$ curl "http://127.0.0.1:6000/dynamic?upstream=backends&add=&server=myhost.local"
+```
+
+nginx then starts whether or not the names resolve; `dns_update` keeps
+their addresses in sync, and a name that stops resolving has its peers
+removed rather than left pointing at an address that may have been reused.
 
 # HTTP APIs
 
@@ -303,4 +331,5 @@ $
 
 # License
 
-See [LICENSE](https://github.com/cubicdaiya/ngx_dynamic_upstream/blob/master/LICENSE).
+See [LICENSE](LICENSE).  MIT (Tatsuhiko Kubo, Aleksei Konovkin), plus the
+nginx two-clause BSD terms for the functions derived from `ngx_inet.c`.
