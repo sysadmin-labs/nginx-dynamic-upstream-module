@@ -551,8 +551,11 @@ ngx_dynamic_upstream_op_peer_exist(ngx_array_t *servers,
         if (!str_eq(server[j].name, peer->server))
             continue;
 
-        if (server[j].u.naddrs == 0)
-            return 1;
+        /* A name that resolves to no address (its backends are gone) no
+         * longer keeps its stale peers: that address may have been handed
+         * to a different service by now.  Returning 0 lets the sync remove
+         * them, and an emptied upstream falls back to its 0.0.0.0:1 down
+         * placeholder.  (upstream #9) */
 
         for (i = 0; i < server[j].u.naddrs; i++) {
 

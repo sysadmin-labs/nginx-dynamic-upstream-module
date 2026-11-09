@@ -27,3 +27,10 @@ upstream findings are being addressed here.
   lists; `hash` and `ip_hash` pick by position, so a key reached different
   upstreams per node.  Peers are now inserted ordered by address.
   (upstream issue #10)
+
+- Drop stale peers when a name resolves to nothing.  getaddrinfo returning
+  no address for a server name (its backends gone) used to keep the old
+  peers; those addresses may since have been handed to a different service
+  by DHCP, so traffic kept reaching the wrong place.  Such peers are now
+  removed, and an emptied upstream falls back to its `0.0.0.0:1 down`
+  placeholder.  (upstream issue #9)
