@@ -13,7 +13,9 @@ extern "C" {
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
+#if (NGX_STREAM_UPSTREAM_ZONE)
 #include <ngx_stream.h>
+#endif
 
 #ifdef __cplusplus
 }
@@ -80,9 +82,11 @@ ngx_dynamic_upstream_op(ngx_log_t *log, ngx_dynamic_upstream_op_t *op,
     ngx_http_upstream_srv_conf_t *uscf);
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 ngx_int_t
 ngx_dynamic_upstream_stream_op(ngx_log_t *log, ngx_dynamic_upstream_op_t *op,
     ngx_stream_upstream_srv_conf_t *uscf);
+#endif
 
 #ifdef __cplusplus
 }

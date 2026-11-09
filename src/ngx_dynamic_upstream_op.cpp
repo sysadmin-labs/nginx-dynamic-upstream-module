@@ -54,12 +54,18 @@ ngx_shm_calloc(ngx_slab_pool_t *shpool, size_t size = 0)
 }
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 #define CALL(fun, peers, ...)                                          \
    (op->op_param & NGX_DYNAMIC_UPSTEAM_OP_PARAM_STREAM                 \
         ? fun<ngx_stream_upstream_srv_conf_t>(                         \
             (ngx_stream_upstream_rr_peers_t *) (peers), __VA_ARGS__)   \
         : fun<ngx_http_upstream_srv_conf_t>(                           \
             (ngx_http_upstream_rr_peers_t *) (peers), __VA_ARGS__))
+#else
+#define CALL(fun, peers, ...)                                          \
+        fun<ngx_http_upstream_srv_conf_t>(                             \
+            (ngx_http_upstream_rr_peers_t *) (peers), __VA_ARGS__)
+#endif
 
 
 ngx_int_t

@@ -8,7 +8,9 @@ extern "C" {
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
+#if (NGX_STREAM_UPSTREAM_ZONE)
 #include <ngx_stream.h>
+#endif
 #include <pthread.h>
 #include <errno.h>
 
@@ -119,6 +121,7 @@ static ngx_command_t ngx_http_dynamic_upstream_commands[] = {
 };
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 static ngx_command_t ngx_stream_dynamic_upstream_commands[] = {
 
     { ngx_string("dns_update"),
@@ -151,6 +154,7 @@ static ngx_command_t ngx_stream_dynamic_upstream_commands[] = {
 
     ngx_null_command
 };
+#endif
 
 
 static ngx_http_module_t ngx_http_dynamic_upstream_module_ctx = {
@@ -168,6 +172,7 @@ static ngx_http_module_t ngx_http_dynamic_upstream_module_ctx = {
 };
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 static ngx_stream_module_t ngx_stream_dynamic_upstream_module_ctx = {
     NULL,                                       /* preconfiguration  */
     NULL,                                       /* postconfiguration */
@@ -178,6 +183,7 @@ static ngx_stream_module_t ngx_stream_dynamic_upstream_module_ctx = {
     ngx_dynamic_upstream_create_srv_conf,       /* create server     */
     NULL                                        /* merge server      */
 };
+#endif
 
 
 ngx_module_t ngx_http_dynamic_upstream_module = {
@@ -200,6 +206,7 @@ ngx_module_t ngx_http_dynamic_upstream_module = {
 };
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 ngx_module_t ngx_stream_dynamic_upstream_module = {
     NGX_MODULE_V1,
     &ngx_stream_dynamic_upstream_module_ctx,   /* module context    */
@@ -214,6 +221,7 @@ ngx_module_t ngx_stream_dynamic_upstream_module = {
     NULL,                                      /* exit master       */
     NGX_MODULE_V1_PADDING
 };
+#endif
 
 
 static ngx_file_t
@@ -444,6 +452,7 @@ srv_conf(ngx_http_upstream_srv_conf_t *uscf)
 }
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 static ngx_dynamic_upstream_srv_conf_t *
 srv_conf(ngx_stream_upstream_srv_conf_t *uscf)
 {
@@ -451,6 +460,7 @@ srv_conf(ngx_stream_upstream_srv_conf_t *uscf)
         ngx_stream_conf_upstream_srv_conf(uscf,
             ngx_stream_dynamic_upstream_module) : NULL;
 }
+#endif
 
 
 typedef struct {
@@ -553,6 +563,7 @@ ngx_dynamic_upstream_op(ngx_log_t *log, ngx_dynamic_upstream_op_t *op,
 }
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 ngx_int_t
 ngx_dynamic_upstream_stream_op(ngx_log_t *log, ngx_dynamic_upstream_op_t *op,
     ngx_stream_upstream_srv_conf_t *uscf)
@@ -567,9 +578,10 @@ ngx_dynamic_upstream_stream_op(ngx_log_t *log, ngx_dynamic_upstream_op_t *op,
 
     if (temp_pool != NULL)
         ngx_destroy_pool(temp_pool);
-    
+
     return retval;
 }
+#endif
 
 
 template <class S> static void
@@ -627,9 +639,11 @@ static void
 ngx_dynamic_upstream_response(ngx_upstream_conf_t *conf,
     ngx_buf_t *b, ngx_dynamic_upstream_op_t *op)
 {
+#if (NGX_STREAM_UPSTREAM_ZONE)
     if (op->op_param & NGX_DYNAMIC_UPSTEAM_OP_PARAM_STREAM)
         return ngx_dynamic_upstream_print_response
             <ngx_stream_upstream_srv_conf_t>(conf->uscf, b, op->verbose);
+#endif
 
     ngx_dynamic_upstream_print_response
         <ngx_http_upstream_srv_conf_t>(conf->uscf, b, op->verbose);
@@ -656,10 +670,12 @@ ngx_dynamic_upstream_handler(ngx_http_request_t *r)
     if ((rc = ngx_dynamic_upstream_build_op(r, &op)) != NGX_OK)
         goto response;
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
     if (op.op_param & NGX_DYNAMIC_UPSTEAM_OP_PARAM_STREAM)
         conf = ngx_dynamic_upstream_get
                     <ngx_stream_upstream_srv_conf_t>(&op);
     else
+#endif
         conf = ngx_dynamic_upstream_get
                     <ngx_http_upstream_srv_conf_t>(&op);
 
@@ -671,11 +687,13 @@ ngx_dynamic_upstream_handler(ngx_http_request_t *r)
         if (conf.dscf->ipv6 == 1)
             op.op_param |= NGX_DYNAMIC_UPSTEAM_OP_PARAM_IPV6;
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
         if (op.op_param & NGX_DYNAMIC_UPSTEAM_OP_PARAM_STREAM)
             rc = ngx_dynamic_upstream_do_op
                     <ngx_stream_upstream_srv_conf_t>(r->connection->log, &op,
                         conf.uscf, r->pool);
         else
+#endif
             rc = ngx_dynamic_upstream_do_op
                     <ngx_http_upstream_srv_conf_t>(r->connection->log, &op,
                         conf.uscf, r->pool);
@@ -1150,7 +1168,9 @@ ngx_http_dynamic_upstream_sync(ngx_event_t *ev)
 
     ngx_dynamic_upstream_loop<ngx_http_upstream_srv_conf_t>();
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
     ngx_dynamic_upstream_loop<ngx_stream_upstream_srv_conf_t>();
+#endif
 
     ngx_add_timer(ev, 500);
 }
@@ -1224,8 +1244,10 @@ template <class S> class upstream_sync_thread<S> *
 
 typedef upstream_sync_thread<ngx_http_upstream_srv_conf_t>
     ngx_http_upsync_t;
+#if (NGX_STREAM_UPSTREAM_ZONE)
 typedef upstream_sync_thread<ngx_stream_upstream_srv_conf_t>
     ngx_stream_upsync_t;
+#endif
 
 
 static void
@@ -1233,8 +1255,10 @@ ngx_http_dynamic_upstream_exit_worker(ngx_cycle_t *)
 {
     if (ngx_http_upsync_t::instance != NULL)
         ngx_http_upsync_t::instance->join();
+#if (NGX_STREAM_UPSTREAM_ZONE)
     if (ngx_stream_upsync_t::instance != NULL)
         ngx_stream_upsync_t::instance->join();
+#endif
 }
 
 #endif
@@ -1279,23 +1303,29 @@ ngx_http_dynamic_upstream_init_worker(ngx_cycle_t *cycle)
 #else
 
     ngx_http_upsync_t::instance = NULL;
+#if (NGX_STREAM_UPSTREAM_ZONE)
     ngx_stream_upsync_t::instance = NULL;
+#endif
 
     p = ngx_palloc(cycle->pool, sizeof(ngx_http_upsync_t));
     if (p == NULL)
         return NGX_ERROR;
     ngx_http_upsync_t::instance = new (p) ngx_http_upsync_t();
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
     p = ngx_palloc(cycle->pool, sizeof(ngx_stream_upsync_t));
     if (p == NULL)
         return NGX_ERROR;
     ngx_stream_upsync_t::instance = new (p) ngx_stream_upsync_t();
+#endif
 
     if (ngx_http_upsync_t::instance->start() == NGX_ERROR)
         goto fail;
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
     if (ngx_stream_upsync_t::instance->start() == NGX_ERROR)
         goto fail;
+#endif
 
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
                   "dynamic upstream: using background threads");

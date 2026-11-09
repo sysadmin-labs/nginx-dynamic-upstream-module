@@ -1,30 +1,44 @@
-ngx_addon_name="                        \
-    ngx_http_dynamic_upstream_module    \
-    ngx_stream_dynamic_upstream_module  \
-"
+ngx_addon_name=ngx_http_dynamic_upstream_module
 
-DYNAMIC_UPSTREAM_SRCS="                                     \
+dynamic_upstream_srcs="                                     \
     $ngx_addon_dir/src/ngx_http_dynamic_upstream_module.cpp \
     $ngx_addon_dir/src/ngx_dynamic_upstream_op.cpp          \
 "
 
-DYNAMIC_UPSTREAM_DEPS="                              \
+dynamic_upstream_deps="                              \
     $ngx_addon_dir/src/ngx_dynamic_upstream_module.h \
     $ngx_addon_dir/src/ngx_dynamic_upstream_op.h     \
 "
 
+# The http module is always built.  The stream module joins it only when
+# nginx itself has the stream subsystem, so the module builds against an
+# http-only nginx too.
+dynamic_upstream_mods=ngx_http_dynamic_upstream_module
+if [ "$STREAM" = YES ]; then
+    dynamic_upstream_mods="ngx_http_dynamic_upstream_module ngx_stream_dynamic_upstream_module"
+fi
+
 CORE_INCS="$CORE_INCS $ngx_addon_dir/src"
 
 if test -n "$ngx_module_link"; then
+
     ngx_module_type=HTTP
-    ngx_module_name=$ngx_addon_name
+    ngx_module_name="$dynamic_upstream_mods"
     ngx_module_incs=
-    ngx_module_deps="$DYNAMIC_UPSTREAM_DEPS"
-    ngx_module_srcs="$DYNAMIC_UPSTREAM_SRCS"
+    ngx_module_deps="$dynamic_upstream_deps"
+    ngx_module_srcs="$dynamic_upstream_srcs"
     ngx_module_libs="-lstdc++ -lpthread"
-   . auto/module
+
+    . auto/module
+
 else
-    HTTP_MODULES="$HTTP_MODULES $ngx_addon_name"
-    NGX_ADDON_SRCS="$NGX_ADDON_SRCS $DYNAMIC_UPSTREAM_SRCS"
-    NGX_ADDON_DEPS="$NGX_ADDON_DEPS $DYNAMIC_UPSTREAM_DEPS"
+
+    HTTP_MODULES="$HTTP_MODULES ngx_http_dynamic_upstream_module"
+    if [ "$STREAM" = YES ]; then
+        STREAM_MODULES="$STREAM_MODULES ngx_stream_dynamic_upstream_module"
+    fi
+    NGX_ADDON_SRCS="$NGX_ADDON_SRCS $dynamic_upstream_srcs"
+    NGX_ADDON_DEPS="$NGX_ADDON_DEPS $dynamic_upstream_deps"
+    CORE_LIBS="$CORE_LIBS -lstdc++ -lpthread"
+
 fi

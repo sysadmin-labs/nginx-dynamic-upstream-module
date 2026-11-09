@@ -13,7 +13,9 @@ extern "C" {
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
+#if (NGX_STREAM_UPSTREAM_ZONE)
 #include <ngx_stream.h>
+#endif
 
 #ifdef __cplusplus
 }
@@ -163,6 +165,7 @@ struct TypeSelect {
 };
 
 
+#if (NGX_STREAM_UPSTREAM_ZONE)
 template <>
 struct TypeSelect<ngx_stream_upstream_srv_conf_t> {
     typedef ngx_stream_upstream_main_conf_t  main_type;
@@ -181,6 +184,7 @@ struct TypeSelect<ngx_stream_upstream_srv_conf_t> {
         op->op_param |= NGX_DYNAMIC_UPSTEAM_OP_PARAM_STREAM;
     }
 };
+#endif
 
 
 ngx_int_t ngx_dynamic_upstream_op_impl(ngx_log_t *log,
