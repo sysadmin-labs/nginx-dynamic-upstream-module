@@ -1,0 +1,36 @@
+name: DNS
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    - cron: '31 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dns:
+    name: a name that stops resolving drops its peers
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Needs a name whose resolution changes under a running nginx, which
+    # getaddrinfo takes from /etc/hosts, so this job edits it (as root) and
+    # restores it afterwards.
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          test-nginx: 'false'
+
+      - name: Build nginx
+        run: |
+          . .github/versions.env
+          ci/build.sh "$NGINX_VERSION" "$HOME/nginx"
+
+      - name: Add a name, sync it, remove it, check the stale peer is gone
+        run: sudo env "CI_WORK=$PWD/ci-work" ci/dns.sh "$HOME/nginx/sbin/nginx"

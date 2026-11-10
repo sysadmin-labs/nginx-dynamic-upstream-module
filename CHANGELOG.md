@@ -43,3 +43,12 @@ upstream findings are being addressed here.
   `dynamic_state_file` + `dns_update` pattern, which seeds a `0.0.0.0:1
   down` placeholder so nginx always starts and names are added at run
   time.  (upstream issue #8)
+
+### Added
+
+- Continuous integration: a build-and-test matrix over several nginx
+  releases (static and loadable), a FreeBSD VM, address/undefined
+  sanitizers, valgrind, CodeQL, shellcheck and actionlint, eight reloads
+  in a row, and two gates that t/ cannot cover -- `ci/stream.sh` drives the
+  stream module through the API without Lua, and `ci/dns.sh` proves a name
+  that stops resolving drops its peers (issue #9).

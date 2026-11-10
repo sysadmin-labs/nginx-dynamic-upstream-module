@@ -1,0 +1,35 @@
+name: Stream
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    - cron: '17 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stream:
+    name: the stream module through the API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The http t/ suite exercises the shared, templated body; this reaches
+    # the second module -- stream type, stream subsystem -- without Lua.
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          test-nginx: 'false'
+
+      - name: Build nginx
+        run: |
+          . .github/versions.env
+          ci/build.sh "$NGINX_VERSION" "$HOME/nginx"
+
+      - name: List, add and remove stream peers
+        run: ci/stream.sh "$HOME/nginx/sbin/nginx"

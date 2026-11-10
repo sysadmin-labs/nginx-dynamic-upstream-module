@@ -1,5 +1,34 @@
 # ngx_dynamic_upstream
 
+[![Build & Test][build-test-badge]][build-test-link]
+[![FreeBSD][freebsd-badge]][freebsd-link]
+[![Stream][stream-badge]][stream-link]
+[![DNS][dns-badge]][dns-link]
+[![Reload][reload-badge]][reload-link]
+[![A/UBSan][sanitizers-badge]][sanitizers-link]
+[![Valgrind][valgrind-badge]][valgrind-link]
+[![CodeQL][codeql-badge]][codeql-link]
+[![Lint][lint-badge]][lint-link]
+
+[build-test-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/build-test.yml/badge.svg
+[build-test-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/build-test.yml
+[freebsd-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/freebsd.yml/badge.svg
+[freebsd-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/freebsd.yml
+[stream-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/stream.yml/badge.svg
+[stream-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/stream.yml
+[dns-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/dns.yml/badge.svg
+[dns-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/dns.yml
+[reload-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/reload.yml/badge.svg
+[reload-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/reload.yml
+[sanitizers-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/sanitizers.yml/badge.svg
+[sanitizers-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/sanitizers.yml
+[valgrind-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/valgrind.yml/badge.svg
+[valgrind-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/valgrind.yml
+[codeql-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/codeql.yml/badge.svg
+[codeql-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/codeql.yml
+[lint-badge]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/lint.yml/badge.svg
+[lint-link]: https://github.com/sysadmin-labs/nginx-dynamic-upstream-module/actions/workflows/lint.yml
+
 `ngx_dynamic_upstream` is the module for operating upstreams dynamically with HTTP APIs
 such as [`ngx_http_upstream_conf`](http://nginx.org/en/docs/http/ngx_http_upstream_conf_module.html).
 
