@@ -125,6 +125,7 @@ server 127.0.0.1:6004 addr=127.0.0.1:6004 backup;
 
 
 === TEST 7: add and remove dns resolve
+--- skip_eval: 2: $ENV{TEST_NGINX_SKIP_SLOW}
 --- http_config
     upstream backends {
         zone zone_for_backends 128k;
@@ -204,6 +205,7 @@ server 127.0.0.1:6001 addr=127.0.0.1:6001;
 
 
 === TEST 10: add and remove dns resolve with thread pool
+--- skip_eval: 2: $ENV{TEST_NGINX_SKIP_SLOW}
 --- main_config
     thread_pool dynamic_upstream threads=10;
 --- http_config
