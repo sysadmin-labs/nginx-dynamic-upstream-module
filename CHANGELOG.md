@@ -5,8 +5,8 @@ Newest first.  Dates are release dates.
 ## v2.4.0 (2026-11-10)
 
 Forked from ZigzagAK/ngx_dynamic_upstream at a445940 (2026-03-12), itself
-the maintained fork of cubicdaiya's original.  Work in progress: the open
-upstream findings are being addressed here.
+the maintained fork of cubicdaiya's original.  This release works in the
+open upstream findings and adds the build, test and CI scaffolding.
 
 ### Fixed
 
