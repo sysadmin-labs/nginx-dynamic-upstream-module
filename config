@@ -22,6 +22,16 @@ if [ "$STREAM" = YES ]; then
     dynamic_upstream_mods="ngx_http_dynamic_upstream_module ngx_stream_dynamic_upstream_module"
 fi
 
+# The sources are C++ and nginx links with the C compiler driver, so the C++
+# runtime has to be named.  It is libstdc++ with gcc and on glibc systems,
+# and libc++ on the BSDs and macOS, where there is no libstdc++ in the base.
+dynamic_upstream_cxxlib=-lstdc++
+case "$NGX_SYSTEM" in
+    FreeBSD | OpenBSD | NetBSD | DragonFly | Darwin)
+        dynamic_upstream_cxxlib=-lc++
+        ;;
+esac
+
 CORE_INCS="$CORE_INCS $ngx_addon_dir/src"
 
 if test -n "$ngx_module_link"; then
@@ -31,7 +41,7 @@ if test -n "$ngx_module_link"; then
     ngx_module_incs=
     ngx_module_deps="$dynamic_upstream_deps"
     ngx_module_srcs="$dynamic_upstream_srcs"
-    ngx_module_libs="-lstdc++ -lpthread"
+    ngx_module_libs="$dynamic_upstream_cxxlib -lpthread"
 
     . auto/module
 
@@ -43,6 +53,6 @@ else
     fi
     NGX_ADDON_SRCS="$NGX_ADDON_SRCS $dynamic_upstream_srcs"
     NGX_ADDON_DEPS="$NGX_ADDON_DEPS $dynamic_upstream_deps"
-    CORE_LIBS="$CORE_LIBS -lstdc++ -lpthread"
+    CORE_LIBS="$CORE_LIBS $dynamic_upstream_cxxlib -lpthread"
 
 fi

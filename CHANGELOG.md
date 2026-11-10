@@ -2,6 +2,16 @@
 
 Newest first.  Dates are release dates.
 
+## v2.4.1 (2026-11-10)
+
+### Fixed
+
+- Build on FreeBSD and the other BSDs.  config named the C++ runtime
+  `-lstdc++`, which the base system there does not carry; it now picks
+  `-lc++` on the BSDs and macOS and keeps `-lstdc++` with gcc and glibc.
+  Verified building nginx 1.30.5 on both FreeBSD (clang/libc++) and Linux
+  (gcc/libstdc++).
+
 ## v2.4.0 (2026-11-10)
 
 Forked from ZigzagAK/ngx_dynamic_upstream at a445940 (2026-03-12), itself
