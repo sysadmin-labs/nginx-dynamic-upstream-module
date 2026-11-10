@@ -2,7 +2,7 @@
 
 Newest first.  Dates are release dates.
 
-## Unreleased
+## v2.4.0 (2026-11-10)
 
 Forked from ZigzagAK/ngx_dynamic_upstream at a445940 (2026-03-12), itself
 the maintained fork of cubicdaiya's original.  Work in progress: the open
