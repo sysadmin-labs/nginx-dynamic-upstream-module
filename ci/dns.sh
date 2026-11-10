@@ -37,6 +37,13 @@ mkdir -p "$WORK/conf" "$WORK/logs"
 fail=0
 note() { echo "  $1" >&2; fail=1; }
 
+# Drop every line mentioning the name from /etc/hosts.  Not sed -i, which
+# wants a backup suffix on the BSDs and none on GNU.
+hosts_del() {
+	sed "/$NAME/d" /etc/hosts > "$WORK/hosts.tmp" &&
+		cat "$WORK/hosts.tmp" > /etc/hosts
+}
+
 # Put the name in /etc/hosts and take it back out no matter how we leave.
 hosts_bak=$WORK/hosts.bak
 cp /etc/hosts "$hosts_bak"
@@ -47,7 +54,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-sed -i "/$NAME/d" /etc/hosts
+hosts_del
 echo "$ADDR $NAME" >> /etc/hosts
 
 ngx_load=
@@ -102,7 +109,7 @@ else
 fi
 
 echo "--- the name stops resolving ---"
-sed -i "/$NAME/d" /etc/hosts
+hosts_del
 echo "  removed $NAME from /etc/hosts"
 sleep 3
 
