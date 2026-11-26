@@ -6,6 +6,15 @@ Newest first.  Dates are release dates.
 
 ### Fixed
 
+- The sync event no longer reads a connection off a stack frame that
+  has already been left.  `init_worker` kept its dummy `ngx_connection_t`
+  as a local and handed its address to the event, which then re-arms
+  itself every 500 ms for the life of the worker; the timer code reads
+  that pointer as a connection on every tick.  AddressSanitizer reports
+  it as `stack-use-after-return` and takes the worker down with it, so
+  the suite lost its first test file to a connection reset.  The dummy
+  connection now comes from the cycle pool, where the event comes from.
+
 - CI: the Test::Nginx cache is now keyed by the Perl build, not just by
   the runner OS.  When the hosted image moved to Ubuntu 26.04 the cached
   `~/perl5` tree was restored against a new interpreter and every test

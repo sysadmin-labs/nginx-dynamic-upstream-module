@@ -1270,9 +1270,7 @@ ngx_http_dynamic_upstream_init_worker(ngx_cycle_t *cycle)
 #if (NGX_THREADS)
 
     ngx_event_t       *ev;
-    ngx_connection_t   c;
-
-    c.fd = -1;
+    ngx_connection_t  *c;
 
 #else
 
@@ -1289,8 +1287,22 @@ ngx_http_dynamic_upstream_init_worker(ngx_cycle_t *cycle)
     if (ev == NULL)
         return NGX_ERROR;
 
+    /*
+     * The sync event re-arms itself every 500 ms for the life of the
+     * worker, and the timer code reads ev->data as a connection on every
+     * tick (ngx_event_ident).  The dummy connection therefore has to
+     * outlive this function; take it from the cycle pool, which is where
+     * the event itself comes from.
+     */
+    c = (ngx_connection_t *) ngx_pcalloc(cycle->pool,
+                                         sizeof(ngx_connection_t));
+    if (c == NULL)
+        return NGX_ERROR;
+
+    c->fd = (ngx_socket_t) -1;
+
     ev->log = cycle->log;
-    ev->data = &c;
+    ev->data = c;
     ev->handler = ngx_http_dynamic_upstream_sync;
 
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
